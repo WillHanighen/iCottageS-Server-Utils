@@ -1,0 +1,170 @@
+# iCottageServerUtils Configuration
+
+# General Settings
+general:
+  debug: false
+  
+# Rank System Settings
+ranks:
+  # Default rank to assign to new players
+  default-rank: "default"
+  
+  # Should ranks be displayed in the tab list?
+  display-in-tab: true
+  
+  # Should ranks be displayed in chat?
+  display-in-chat: true
+  
+  # Should ranks be displayed in player names?
+  display-in-names: true
+  
+  # Format for chat messages
+  # Placeholders: {rank}, {name}, {message}
+  chat-format: "{rank} {name}: {message}"
+  
+  # Format for join messages
+  # Placeholders: {rank}, {name}
+  join-message: "&e{rank} {name} &ejoined the server"
+  
+  # Format for leave messages
+  # Placeholders: {rank}, {name}
+  leave-message: "&e{rank} {name} &eleft the server"
+
+# LuckPerms Integration Settings
+luckperms:
+  # Enable integration with LuckPerms
+  enabled: true
+  
+  # Automatically sync ranks with LuckPerms on plugin start
+  auto-sync-on-start: true
+  
+  # Automatically sync ranks with LuckPerms when they are created/edited
+  auto-sync-on-change: true
+  
+  # Sync options - what to sync between ranks and LuckPerms groups
+  sync:
+    # Sync permissions from ranks to LuckPerms groups
+    permissions: true
+    
+    # Sync weight from ranks to LuckPerms groups
+    weight: true
+    
+    # Sync player ranks to LuckPerms groups
+    players: true
+
+# Moderation System Settings
+moderation:
+  # Mute settings
+  mute:
+    # Default mute duration if not specified (in time format, e.g., 1h, 2d)
+    default-duration: "1h"
+    
+    # Message to show to muted players when they try to chat
+    message: "&cYou are muted for {time}. Reason: {reason}"
+  
+  # Ban settings
+  ban:
+    # Default ban duration if not specified (in time format, e.g., 1h, 2d)
+    default-duration: "1d"
+    
+    # Message to show to banned players when they try to join
+    message: "&cYou are banned for {time}.\n&cReason: {reason}"
+  
+  # Warning settings
+  warnings:
+    # Whether to enable automatic punishments based on warning count
+    auto-punish:
+      enabled: true
+      
+      # Number of warnings before a player is automatically muted
+      # Set to 0 to disable
+      mute-threshold: 3
+      
+      # Duration of the automatic mute
+      mute-duration: "1h"
+      
+      # Number of warnings before a player is automatically banned
+      # Set to 0 to disable
+      ban-threshold: 5
+      
+      # Duration of the automatic ban
+      ban-duration: "1d"
+  
+  # Kick settings
+  kick:
+    # Default kick reason if not specified
+    default-reason: "You have been kicked from the server"
+  
+  # Notification settings
+  notifications:
+    # Whether to broadcast moderation actions to staff
+    broadcast-to-staff: true
+    
+# Scoreboard Settings
+scoreboard:
+  # Server name to display at the top of the scoreboard
+  server-name: "Your Server"
+  
+  # Server address to display at the bottom of the scoreboard
+  server-address: "play.yourserver.com"
+  
+  # How often to update the scoreboard (in ticks, 20 ticks = 1 second)
+  update-interval: 20
+  
+  # What information to show on the scoreboard
+  show-rank: true
+  show-kills: true
+  show-deaths: true
+  show-kdr: true
+  show-playtime: true
+  show-online-players: true
+  show-server-tps: true
+
+# Tab List Settings
+tablist:
+  # How often to update the tab list (in ticks, 20 ticks = 1 second)
+  update-interval: 40
+  
+  # Header settings
+  header:
+    # Whether to show the header
+    enabled: true
+  
+  # Footer settings
+  footer:
+    # Whether to show the footer
+    enabled: true
+  
+  # Whether to show player stats in the tab list names
+  show-player-stats: true
+
+# Sitting Feature Settings
+sitting:
+  # Enable or disable the sitting feature
+  enabled: true
+  
+  # Allow sitting on stairs
+  allow-stairs: true
+  
+  # Allow sitting on carpets
+  allow-carpets: true
+  
+  # Allow sitting on bottom slabs
+  allow-slabs: true
+  
+  # Whether players can sit while in combat
+  allow-in-combat: false
+
+# Combat Logging Prevention Settings
+combat:
+  # Enable or disable combat logging prevention
+  enabled: true
+  
+  # Time in seconds that a player is considered in combat
+  time-seconds: 10
+  
+  # Whether to show the combat timer in the action bar
+  action-bar-enabled: true
+  
+  # Whether to punish players for logging out during combat
+  punish-logout: true

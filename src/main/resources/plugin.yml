@@ -1,0 +1,155 @@
+name: iCottageServerUtils
+version: '0.001-ALPHA'
+main: com.icottage.serverutils.iCottageSServerUtils.ICottageSServerUtils
+api-version: '1.21'
+description: iCottage's Server Utilities
+authors: [iCottageMC]
+
+commands:
+  rank:
+    description: Manage server ranks
+    usage: /rank <list|info|create|delete|set|reload>
+    permission: serverutils.rank.use
+    aliases: [ranks]
+  icottageutils:
+    description: iCottage Server Utilities commands
+    usage: /icottageutils <command>
+    permission: serverutils.use
+    aliases: [icu]
+  heal:
+    description: Heal yourself or another player
+    usage: /heal [player]
+    permission: serverutils.admin.heal
+  feed:
+    description: Feed yourself or another player
+    usage: /feed [player]
+    permission: serverutils.admin.feed
+  invsee:
+    description: View and modify a player's inventory
+    usage: /invsee <player>
+    permission: serverutils.admin.invsee
+  echest:
+    description: View and modify a player's enderchest
+    usage: /echest [player]
+    permission: serverutils.admin.echest.use
+  hat:
+    description: Wear the item in your hand as a hat
+    usage: /hat
+    permission: serverutils.hat
+  rgbhat:
+    description: Wear a color-cycling glass hat
+    usage: /rgbhat
+    permission: serverutils.rgbhat
+
+permissions:
+  serverutils.use:
+    description: Allows using basic plugin commands
+    default: true
+  serverutils.rank.use:
+    description: Allows using basic rank commands
+    default: true
+  serverutils.rank.admin:
+    description: Allows managing ranks
+    default: op
+  serverutils.admin.heal:
+    description: Allows healing yourself
+    default: op
+  serverutils.admin.heal.others:
+    description: Allows healing other players
+    default: op
+  serverutils.admin.feed:
+    description: Allows feeding yourself
+    default: op
+  serverutils.admin.feed.others:
+    description: Allows feeding other players
+    default: op
+  serverutils.admin.invsee:
+    description: Allows viewing player inventories
+    default: op
+  serverutils.admin.invsee.modify:
+    description: Allows modifying player inventories
+    default: op
+  serverutils.admin.echest.use:
+    description: Allows viewing your own enderchest
+    default: op
+  serverutils.admin.echest.others:
+    description: Allows viewing other players' enderchests
+    default: op
+  serverutils.admin.echest.modify:
+    description: Allows modifying other players' enderchests
+    default: op
+  serverutils.hat:
+    description: Allows wearing items as hats
+    default: true
+  serverutils.rgbhat:
+    description: Allows wearing a color-cycling glass hat
+    default: true
+  serverutils.admin:
+    description: Allows using admin commands
+    default: op
+  serverutils.rank.set:
+    description: Allows setting a player's rank
+    default: op
+  serverutils.rank.create:
+    description: Allows creating a new rank
+    default: op
+  serverutils.rank.delete:
+    description: Allows deleting a rank
+    default: op
+  serverutils.rank.list:
+    description: Allows listing all ranks
+    default: op
+  serverutils.rank.info:
+    description: Allows viewing rank info
+    default: op
+  serverutils.rank.edit:
+    description: Allows editing a rank
+    default: op
+  serverutils.luckperms.import:
+    description: Allows importing LuckPerms groups as ranks
+    default: op
+  serverutils.luckperms.export:
+    description: Allows exporting ranks to LuckPerms
+    default: op
+  serverutils.moderation.mute:
+    description: Allows muting players
+    default: op
+  serverutils.moderation.unmute:
+    description: Allows unmuting players
+    default: op
+  serverutils.moderation.ban:
+    description: Allows banning players
+    default: op
+  serverutils.moderation.unban:
+    description: Allows unbanning players
+    default: op
+  serverutils.moderation.warn:
+    description: Allows warning players
+    default: op
+  serverutils.moderation.warnings:
+    description: Allows viewing player warnings
+    default: op
+  serverutils.moderation.clearwarnings:
+    description: Allows clearing player warnings
+    default: op
+  serverutils.moderation.kick:
+    description: Allows kicking players
+    default: op
+  serverutils.moderation.history:
+    description: Allows viewing player moderation history
+    default: op
+  serverutils.moderation.notify:
+    description: Receive notifications about moderation actions
+    default: op
+  serverutils.moderation.exempt:
+    description: Exempt from moderation actions
+    default: false
+  serverutils.moderation.bypass:
+    description: Bypass moderation restrictions
+    default: op
+  serverutils.scoreboard.use:
+    description: Allow player to see the scoreboard
+    default: true
+  serverutils.scoreboard.admin:
+    description: Allow player to manage scoreboards
+    default: op
