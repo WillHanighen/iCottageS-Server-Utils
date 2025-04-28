@@ -143,4 +143,4 @@ This project is licensed under the BY-NC 4.0 License - see the LICENSE file for 
 
 ## Support
 
-For support, please open an issue on the GitHub repository or contact the developer directly.
+For support, please open an issue on the GitHub repository or contact me directly.
