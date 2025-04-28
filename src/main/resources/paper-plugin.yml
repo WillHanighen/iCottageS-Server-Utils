@@ -1,0 +1,8 @@
+name: iCottage's Server Utils
+version: '0.001-ALPHA'
+main: com.icottage.serverutils.iCottageSServerUtils.ICottageSServerUtils
+api-version: '1.21'
+prefix: [ CC ]
+load: STARTUP
+authors: [ iCottageMC ]
+description: iCottage's Server Utilites
