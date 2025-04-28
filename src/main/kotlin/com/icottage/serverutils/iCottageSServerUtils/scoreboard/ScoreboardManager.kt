@@ -1,5 +1,6 @@
 package com.icottage.serverutils.iCottageSServerUtils.scoreboard
 
+import com.icottage.serverutils.iCottageSServerUtils.moderation.ModerationManager
 import com.icottage.serverutils.iCottageSServerUtils.ranks.RankManager
 import com.icottage.serverutils.iCottageSServerUtils.stats.PlayerStatsManager
 import com.icottage.serverutils.iCottageSServerUtils.utils.TimeUtils
@@ -24,7 +25,8 @@ import java.util.concurrent.ConcurrentHashMap
 class ScoreboardManager(
     private val plugin: JavaPlugin,
     private val rankManager: RankManager,
-    private val statsManager: PlayerStatsManager
+    private val statsManager: PlayerStatsManager,
+    private val moderationManager: ModerationManager
 ) {
     private val playerScoreboards = ConcurrentHashMap<UUID, Scoreboard>()
     private val kdrFormat = DecimalFormat("0.00")
@@ -39,6 +41,7 @@ class ScoreboardManager(
     private val showOnlinePlayers = plugin.config.getBoolean("scoreboard.show-online-players", true)
     private val showServerTPS = plugin.config.getBoolean("scoreboard.show-server-tps", true)
     private val showServerAddress = plugin.config.getBoolean("scoreboard.show-server-address", true)
+    private val showMuteStatus = plugin.config.getBoolean("scoreboard.show-mute-status", true)
     
     /**
      * Initialize the scoreboard manager
@@ -164,17 +167,23 @@ class ScoreboardManager(
             objective.getScore("§eTPS: $tpsColor$tpsFormatted").score = score--
         }
         
+        // Check if player is muted and show mute status if enabled
+        if (showMuteStatus && moderationManager.isMuted(player)) {
+            val muteEntry = moderationManager.getMuteEntry(player)
+            if (muteEntry != null) {
+                val remainingTime = TimeUtils.getRemainingTime(muteEntry.expiration)
+                val formattedTime = if (remainingTime == Long.MAX_VALUE) "permanently" else TimeUtils.formatTime(remainingTime)
+                objective.getScore("§c§lMUTED: §f$formattedTime").score = score--
+            }
+        }
+        
         // Add empty line
         objective.getScore("§8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯   ").score = score--
         
         // Add server address if enabled
         if (showServerAddress) {
-            objective.getScore("§e$serverAddress").score = score--
+            objective.getScore("§b$serverAddress").score = score
         }
-        
-        // Add empty line
-        objective.getScore("§8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯   ").score = score--
-        objective.getScore("§b$serverAddress").score = score
     }
     
     /**

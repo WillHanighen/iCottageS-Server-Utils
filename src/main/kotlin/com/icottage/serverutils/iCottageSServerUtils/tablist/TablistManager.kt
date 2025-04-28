@@ -1,7 +1,9 @@
 package com.icottage.serverutils.iCottageSServerUtils.tablist
 
+import com.icottage.serverutils.iCottageSServerUtils.moderation.ModerationManager
 import com.icottage.serverutils.iCottageSServerUtils.ranks.RankManager
 import com.icottage.serverutils.iCottageSServerUtils.stats.PlayerStatsManager
+import com.icottage.serverutils.iCottageSServerUtils.utils.TimeUtils
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
@@ -19,13 +21,15 @@ import java.util.concurrent.ConcurrentHashMap
 class TablistManager(
     private val plugin: JavaPlugin,
     private val rankManager: RankManager,
-    private val statsManager: PlayerStatsManager
+    private val statsManager: PlayerStatsManager,
+    private val moderationManager: ModerationManager
 ) {
     private val kdrFormat = DecimalFormat("0.00")
     private val updateInterval = plugin.config.getLong("tablist.update-interval", 20L)
     private val headerEnabled = plugin.config.getBoolean("tablist.header.enabled", true)
     private val footerEnabled = plugin.config.getBoolean("tablist.footer.enabled", true)
     private val showPlayerStats = plugin.config.getBoolean("tablist.show-player-stats", true)
+    private val showMuteStatus = plugin.config.getBoolean("tablist.show-mute-status", true)
     private val serverName = plugin.config.getString("scoreboard.server-name", "Your Server") ?: "Your Server"
     private val serverAddress = plugin.config.getString("scoreboard.server-address", "play.yourserver.com") ?: "play.yourserver.com"
     
@@ -70,27 +74,37 @@ class TablistManager(
      */
     private fun updatePlayerListName(player: Player) {
         val rank = rankManager.getPlayerRankByUUID(player.uniqueId)
+        val componentBuilder = Component.text()
+            .append(rank.getDisplayNameComponent())
+            .append(Component.text(" "))
+            .append(Component.text(player.name))
+        
+        // Check if player is muted and show mute status if enabled
+        if (showMuteStatus && moderationManager.isMuted(player)) {
+            val muteEntry = moderationManager.getMuteEntry(player)
+            if (muteEntry != null) {
+                val remainingTime = TimeUtils.getRemainingTime(muteEntry.expiration)
+                val formattedTime = if (remainingTime == Long.MAX_VALUE) "PERM" else TimeUtils.formatTime(remainingTime)
+                val shortReason = if (muteEntry.reason.length > 15) muteEntry.reason.substring(0, 12) + "..." else muteEntry.reason
+                
+                componentBuilder.append(Component.text(" "))
+                    .append(Component.text("[MUTED: $formattedTime]", NamedTextColor.RED, TextDecoration.BOLD))
+                    .append(Component.text(" "))
+                    .append(Component.text("($shortReason)", NamedTextColor.RED))
+            }
+        }
         
         // If player stats are enabled, show KDR in the tab list
         if (showPlayerStats) {
             val stats = statsManager.getPlayerStats(player)
             val kdr = kdrFormat.format(stats.kdr)
             
-            player.playerListName(Component.text()
-                .append(rank.getDisplayNameComponent())
-                .append(Component.text(" "))
-                .append(Component.text(player.name))
-                .append(Component.text(" ["))
+            componentBuilder.append(Component.text(" ["))
                 .append(Component.text("K:${stats.kills} D:${stats.deaths} KDR:$kdr", NamedTextColor.GRAY))
                 .append(Component.text("]"))
-                .build())
-        } else {
-            player.playerListName(Component.text()
-                .append(rank.getDisplayNameComponent())
-                .append(Component.text(" "))
-                .append(Component.text(player.name))
-                .build())
         }
+        
+        player.playerListName(componentBuilder.build())
     }
     
     /**
@@ -128,10 +142,30 @@ class TablistManager(
         val currentSession = (System.currentTimeMillis() - stats.lastJoinTime) / 1000
         val totalPlaytime = stats.playTimeSeconds + currentSession
         
-        return Component.text()
+        val footerBuilder = Component.text()
             .append(Component.text("⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯", NamedTextColor.DARK_GRAY))
             .append(Component.newline())
-            .append(Component.text("Your Stats: ", NamedTextColor.YELLOW))
+        
+        // Add mute information if player is muted
+        if (showMuteStatus && moderationManager.isMuted(player)) {
+            val muteEntry = moderationManager.getMuteEntry(player)
+            if (muteEntry != null) {
+                val remainingTime = TimeUtils.getRemainingTime(muteEntry.expiration)
+                val formattedTime = if (remainingTime == Long.MAX_VALUE) "permanently" else TimeUtils.formatTime(remainingTime)
+                
+                footerBuilder.append(Component.text("YOU ARE MUTED", NamedTextColor.RED, TextDecoration.BOLD))
+                    .append(Component.newline())
+                    .append(Component.text("Time Remaining: ", NamedTextColor.RED)
+                        .append(Component.text(formattedTime, NamedTextColor.WHITE)))
+                    .append(Component.newline())
+                    .append(Component.text("Reason: ", NamedTextColor.RED)
+                        .append(Component.text(muteEntry.reason, NamedTextColor.WHITE)))
+                    .append(Component.newline())
+                    .append(Component.newline())
+            }
+        }
+        
+        footerBuilder.append(Component.text("Your Stats: ", NamedTextColor.YELLOW))
             .append(Component.newline())
             .append(Component.text("Kills: ", NamedTextColor.YELLOW)
                 .append(Component.text("${stats.kills}", NamedTextColor.WHITE)))
@@ -151,7 +185,8 @@ class TablistManager(
             .append(Component.text(serverAddress, NamedTextColor.AQUA))
             .append(Component.newline())
             .append(Component.text("⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯", NamedTextColor.DARK_GRAY))
-            .build()
+        
+        return footerBuilder.build()
     }
     
     /**

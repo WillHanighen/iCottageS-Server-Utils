@@ -15,6 +15,7 @@ A comprehensive Minecraft server utility plugin that enhances server management 
 - Temporary and permanent punishment options with reason tracking
 - Automatic punishment escalation based on warning thresholds
 - Staff notifications for moderation actions
+- Visual mute status display in scoreboard and tab list
 
 ### Player Statistics
 - Tracks player kills, deaths, KDR (Kill/Death Ratio), and playtime
@@ -24,12 +25,15 @@ A comprehensive Minecraft server utility plugin that enhances server management 
 ### Custom Scoreboard
 - Server information display (name, address, online players, TPS)
 - Player statistics display (rank, kills, deaths, KDR, playtime)
+- Mute status display with remaining time for muted players
 - Fully customizable through configuration
 - Uses modern Adventure API for text formatting
 
 ### Custom Tab List (Tablist)
 - Custom header and footer with server information
 - Player names with rank prefixes and optional stats display
+- Mute status indicators in player names with time remaining and reason
+- Detailed mute information in the footer for muted players
 - Configurable update intervals and display options
 - Seamless integration with the rank system
 
@@ -135,7 +139,7 @@ The plugin is highly configurable through the `config.yml` file. See the comment
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the BY-NC 4.0 License - see the LICENSE file for details.
 
 ## Support
 

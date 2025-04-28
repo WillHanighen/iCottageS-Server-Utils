@@ -119,6 +119,8 @@ scoreboard:
   show-playtime: true
   show-online-players: true
   show-server-tps: true
+  show-server-address: true
+  show-mute-status: true
 
 # Tab List Settings
 tablist:
@@ -137,6 +139,9 @@ tablist:
   
   # Whether to show player stats in the tab list names
   show-player-stats: true
+  
+  # Whether to show mute status in the tab list
+  show-mute-status: true
 
 # Sitting Feature Settings
 sitting:

@@ -120,7 +120,7 @@ class ICottageSServerUtils : JavaPlugin() {
             
             // Initialize scoreboard system
             try {
-                scoreboardManager = ScoreboardManager(this, rankManager, playerStatsManager)
+                scoreboardManager = ScoreboardManager(this, rankManager, playerStatsManager, moderationManager)
                 scoreboardManager.initialize()
                 logger.info("Initialized scoreboard system")
             } catch (e: Exception) {
@@ -132,7 +132,7 @@ class ICottageSServerUtils : JavaPlugin() {
             
             // Initialize tablist system
             try {
-                tablistManager = TablistManager(this, rankManager, playerStatsManager)
+                tablistManager = TablistManager(this, rankManager, playerStatsManager, moderationManager)
                 tablistManager.initialize()
                 logger.info("Initialized tablist system")
             } catch (e: Exception) {
