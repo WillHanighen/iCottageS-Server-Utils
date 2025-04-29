@@ -7,6 +7,7 @@ import com.icottage.serverutils.iCottageSServerUtils.commands.ModerationCommands
 import com.icottage.serverutils.iCottageSServerUtils.commands.RankCommands
 import com.icottage.serverutils.iCottageSServerUtils.integration.LuckPermsIntegration
 import com.icottage.serverutils.iCottageSServerUtils.listeners.CombatListener
+import com.icottage.serverutils.iCottageSServerUtils.listeners.DeathMessageListener
 import com.icottage.serverutils.iCottageSServerUtils.listeners.DoorKnockListener
 import com.icottage.serverutils.iCottageSServerUtils.listeners.RankChatListener
 import com.icottage.serverutils.iCottageSServerUtils.listeners.RankDisplayListener
@@ -167,6 +168,10 @@ class ICottageSServerUtils : JavaPlugin() {
                 // Register door knock listener
                 server.pluginManager.registerEvents(DoorKnockListener(this), this)
                 logger.info("Registered door knock listener")
+                
+                // Register custom death message listener
+                server.pluginManager.registerEvents(DeathMessageListener(this), this)
+                logger.info("Registered custom death message listener")
                 
                 // Initialize combat manager
                 combatManager = CombatManager(this)
