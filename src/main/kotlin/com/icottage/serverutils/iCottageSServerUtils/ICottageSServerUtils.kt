@@ -2,10 +2,15 @@ package com.icottage.serverutils.iCottageSServerUtils
 
 import com.icottage.serverutils.iCottageSServerUtils.combat.CombatManager
 import com.icottage.serverutils.iCottageSServerUtils.commands.AdminCommands
+import com.icottage.serverutils.iCottageSServerUtils.commands.AfkCommands
 import com.icottage.serverutils.iCottageSServerUtils.commands.GeneralCommands
+import com.icottage.serverutils.iCottageSServerUtils.commands.MessagingCommands
 import com.icottage.serverutils.iCottageSServerUtils.commands.ModerationCommands
 import com.icottage.serverutils.iCottageSServerUtils.commands.RankCommands
+import com.icottage.serverutils.iCottageSServerUtils.commands.ReportCommands
+import com.icottage.serverutils.iCottageSServerUtils.commands.TeleportCommands
 import com.icottage.serverutils.iCottageSServerUtils.integration.LuckPermsIntegration
+import com.icottage.serverutils.iCottageSServerUtils.afk.AfkManager
 import com.icottage.serverutils.iCottageSServerUtils.listeners.CombatListener
 import com.icottage.serverutils.iCottageSServerUtils.listeners.DeathMessageListener
 import com.icottage.serverutils.iCottageSServerUtils.listeners.DoorKnockListener
@@ -16,12 +21,16 @@ import com.icottage.serverutils.iCottageSServerUtils.listeners.ScoreboardListene
 import com.icottage.serverutils.iCottageSServerUtils.listeners.SittingListener
 import com.icottage.serverutils.iCottageSServerUtils.listeners.StatsListener
 import com.icottage.serverutils.iCottageSServerUtils.listeners.TablistListener
+import com.icottage.serverutils.iCottageSServerUtils.listeners.TeleportListener
 import com.icottage.serverutils.iCottageSServerUtils.moderation.ModerationManager
+import com.icottage.serverutils.iCottageSServerUtils.messaging.MessagingManager
 import com.icottage.serverutils.iCottageSServerUtils.ranks.RankManager
+import com.icottage.serverutils.iCottageSServerUtils.report.ReportManager
 import com.icottage.serverutils.iCottageSServerUtils.scoreboard.ScoreboardManager
 import com.icottage.serverutils.iCottageSServerUtils.sitting.SittingManager
 import com.icottage.serverutils.iCottageSServerUtils.stats.PlayerStatsManager
 import com.icottage.serverutils.iCottageSServerUtils.tablist.TablistManager
+import com.icottage.serverutils.iCottageSServerUtils.teleport.TeleportManager
 import org.bukkit.Bukkit
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
@@ -39,6 +48,10 @@ class ICottageSServerUtils : JavaPlugin() {
     private lateinit var playerStatsManager: PlayerStatsManager
     private lateinit var scoreboardManager: ScoreboardManager
     private lateinit var tablistManager: TablistManager
+    private lateinit var afkManager: AfkManager
+    private lateinit var messagingManager: MessagingManager
+    private lateinit var teleportManager: TeleportManager
+    private lateinit var reportManager: ReportManager
     private lateinit var sittingManager: SittingManager
     private lateinit var combatManager: CombatManager
     private lateinit var adminCommands: AdminCommands
@@ -119,28 +132,47 @@ class ICottageSServerUtils : JavaPlugin() {
                 }
             }
             
+            // Initialize AFK system
+            afkManager = AfkManager(this)
+            afkManager.initialize()
+            logger.info("Initialized AFK system")
+            
             // Initialize scoreboard system
             try {
-                scoreboardManager = ScoreboardManager(this, rankManager, playerStatsManager, moderationManager)
+                scoreboardManager = ScoreboardManager(this, rankManager, playerStatsManager, moderationManager, afkManager)
                 scoreboardManager.initialize()
                 logger.info("Initialized scoreboard system")
             } catch (e: Exception) {
                 logger.severe("Failed to initialize scoreboard system: ${e.message}")
-                if (debugMode) {
+                if (config.getBoolean("debug-mode", false)) {
                     e.printStackTrace()
                 }
             }
             
-            // Initialize tablist system
-            try {
-                tablistManager = TablistManager(this, rankManager, playerStatsManager, moderationManager)
+            // Initialize tab list system
+            if (config.getBoolean("tablist.enabled", true)) {
+                tablistManager = TablistManager(this, rankManager, playerStatsManager, moderationManager, afkManager)
                 tablistManager.initialize()
-                logger.info("Initialized tablist system")
-            } catch (e: Exception) {
-                logger.severe("Failed to initialize tablist system: ${e.message}")
-                if (debugMode) {
-                    e.printStackTrace()
-                }
+            }
+            
+            // Initialize messaging system
+            if (config.getBoolean("messaging-system.enabled", true)) {
+                messagingManager = MessagingManager(this)
+                messagingManager.initialize()
+            }
+            
+            // Initialize teleport system
+            if (config.getBoolean("teleport-system.enabled", true)) {
+                teleportManager = TeleportManager(this)
+                teleportManager.initialize()
+                server.pluginManager.registerEvents(TeleportListener(this, teleportManager), this)
+                logger.info("Registered teleport listener")
+            }
+            
+            // Initialize report system
+            if (config.getBoolean("report-system.enabled", true)) {
+                reportManager = ReportManager(this)
+                reportManager.initialize()
             }
             
             // Register listeners
@@ -154,10 +186,11 @@ class ICottageSServerUtils : JavaPlugin() {
                 
                 server.pluginManager.registerEvents(RankJoinLeaveListener(rankManager), this)
                 
-                // Register stats, scoreboard, and tablist listeners
+                // Register event listeners for player stats
                 server.pluginManager.registerEvents(StatsListener(playerStatsManager), this)
-                server.pluginManager.registerEvents(ScoreboardListener(scoreboardManager), this)
-                server.pluginManager.registerEvents(TablistListener(tablistManager), this)
+                server.pluginManager.registerEvents(DeathMessageListener(this), this)
+                
+                // The AFK manager is already registered as a listener in its initialize method
                 
                 // Initialize sitting system
                 sittingManager = SittingManager(this)
@@ -169,9 +202,18 @@ class ICottageSServerUtils : JavaPlugin() {
                 server.pluginManager.registerEvents(DoorKnockListener(this), this)
                 logger.info("Registered door knock listener")
                 
+                // Register scoreboard listener
+                server.pluginManager.registerEvents(ScoreboardListener(scoreboardManager), this)
+                logger.info("Registered scoreboard listener")
+                
+                // Register tablist listener
+                if (config.getBoolean("tablist.enabled", true)) {
+                    server.pluginManager.registerEvents(TablistListener(tablistManager), this)
+                    logger.info("Registered tablist listener")
+                }
+                
                 // Register custom death message listener
-                server.pluginManager.registerEvents(DeathMessageListener(this), this)
-                logger.info("Registered custom death message listener")
+                // Already registered above
                 
                 // Initialize combat manager
                 combatManager = CombatManager(this)
@@ -190,7 +232,30 @@ class ICottageSServerUtils : JavaPlugin() {
                 // Register general commands
                 generalCommands = GeneralCommands(this)
                 generalCommands.registerCommands()
-                logger.info("Registered general commands")
+                
+                // Register messaging commands
+                if (config.getBoolean("messaging-system.enabled", true)) {
+                    val messagingCommands = MessagingCommands(this, messagingManager)
+                    messagingCommands.registerCommands()
+                }
+                
+                // Register teleport commands
+                if (config.getBoolean("teleport-system.enabled", true)) {
+                    val teleportCommands = TeleportCommands(this, teleportManager)
+                    teleportCommands.registerCommands()
+                }
+                
+                // Register AFK commands
+                if (config.getBoolean("afk-system.enabled", true)) {
+                    val afkCommands = AfkCommands(this, afkManager)
+                    afkCommands.registerCommands()
+                }
+                
+                // Register report commands
+                if (config.getBoolean("report-system.enabled", true)) {
+                    val reportCommands = ReportCommands(this, reportManager)
+                    reportCommands.registerCommands()
+                }
                 
                 // Register admin commands
                 adminCommands = AdminCommands(this)

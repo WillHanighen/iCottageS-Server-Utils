@@ -247,6 +247,24 @@ class GeneralCommands(private val plugin: JavaPlugin) : CommandExecutor, TabComp
     }
     
     override fun onTabComplete(sender: CommandSender, command: Command, alias: String, args: Array<out String>): List<String> {
+        if (sender !is Player) {
+            return emptyList()
+        }
+        
+        when (command.name.lowercase()) {
+            "hat", "rgbhat" -> {
+                if (args.size == 1) {
+                    // Suggest player names if the player has permission
+                    if (sender.hasPermission("serverutils.admin")) {
+                        val prefix = args[0].lowercase()
+                        return plugin.server.onlinePlayers
+                            .filter { it.name.lowercase().startsWith(prefix) }
+                            .map { it.name }
+                    }
+                }
+            }
+        }
+        
         return emptyList()
     }
     

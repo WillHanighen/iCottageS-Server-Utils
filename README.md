@@ -17,6 +17,12 @@ A comprehensive Minecraft server utility plugin that enhances server management 
 - Staff notifications for moderation actions
 - Visual mute status display in scoreboard and tab list
 
+### Player Reporting System
+- Simple `/report` command for players to report rule violations
+- Configurable report categories
+- Staff notifications for new reports
+- Detailed reporting with reason and additional context
+
 ### Player Statistics
 - Tracks player kills, deaths, KDR (Kill/Death Ratio), and playtime
 - Persistent statistics storage across server restarts
@@ -42,6 +48,24 @@ A comprehensive Minecraft server utility plugin that enhances server management 
 - Configurable combat timer with action bar countdown
 - Creates a combat logger NPC when a player logs off during combat
 - The NPC can be killed, resulting in the player's death upon reconnection
+
+### AFK System
+- Automatic AFK detection based on player inactivity
+- Manual AFK toggling with `/afk` command
+- AFK status display in tab list and player name
+- Configurable AFK timeout and actions
+
+### Private Messaging
+- Direct player-to-player communication with `/msg` command
+- Quick reply with `/r` or `/reply` commands
+- Player ignore system with `/ignore` and `/unignore` commands
+- Message history tracking
+
+### Teleport Request System
+- Player-to-player teleport requests with `/tpa` command
+- Accept or deny teleport requests with `/tpaccept` and `/tpdeny`
+- Configurable timeout for teleport requests
+- Safe teleportation with cooldown options
 
 ### Sitting Feature
 - Allows players to sit on stairs, carpets, and bottom slabs
@@ -82,6 +106,7 @@ The plugin is highly configurable through the `config.yml` file. See the comment
 - `serverutils.use` - Access to basic plugin features
 - `serverutils.hat` - Allows using the hat command
 - `serverutils.rgbhat` - Allows using the RGB hat command
+- `serverutils.afk` - Allows using the AFK command
 
 ### Rank System
 - `serverutils.rank.use` - Access to basic rank commands
@@ -93,11 +118,17 @@ The plugin is highly configurable through the `config.yml` file. See the comment
 - `serverutils.admin.invsee` - Allows viewing player inventories
 - `serverutils.admin.echest` - Allows viewing player enderchests
 
+### Messaging & Teleport
+- `serverutils.msg` - Allows using private messaging
+- `serverutils.tpa` - Allows sending teleport requests
+- `serverutils.report` - Allows reporting players
+
 ## Commands
 
 ### General Commands
 - `/hat` - Wear the item in your hand as a hat
 - `/rgbhat` - Toggle a color-cycling RGB glass hat
+- `/afk` - Toggle your AFK status
 
 ### Admin Commands
 - `/heal [player]` - Heal yourself or another player
@@ -125,6 +156,19 @@ The plugin is highly configurable through the `config.yml` file. See the comment
 - `/warn <player> [reason]` - Warn a player
 - `/warnings <player>` - View a player's warnings
 - `/clearwarnings <player>` - Clear a player's warnings
+- `/report <player> <reason> <details>` - Report a player for rule violations
+
+### Messaging Commands
+- `/msg <player> <message>` - Send a private message to a player
+- `/r <message>` - Reply to the last received private message
+- `/reply <message>` - Reply to the last received private message
+- `/ignore <player>` - Ignore messages from a player
+- `/unignore <player>` - Stop ignoring messages from a player
+
+### Teleport Commands
+- `/tpa <player>` - Send a teleport request to a player
+- `/tpaccept <player>` - Accept a teleport request
+- `/tpdeny <player>` - Deny a teleport request
 
 ## Dependencies
 

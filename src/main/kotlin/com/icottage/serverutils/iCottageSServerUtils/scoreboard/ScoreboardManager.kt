@@ -1,5 +1,7 @@
 package com.icottage.serverutils.iCottageSServerUtils.scoreboard
 
+import com.icottage.serverutils.iCottageSServerUtils.ICottageSServerUtils
+import com.icottage.serverutils.iCottageSServerUtils.afk.AfkManager
 import com.icottage.serverutils.iCottageSServerUtils.moderation.ModerationManager
 import com.icottage.serverutils.iCottageSServerUtils.ranks.RankManager
 import com.icottage.serverutils.iCottageSServerUtils.stats.PlayerStatsManager
@@ -7,8 +9,8 @@ import com.icottage.serverutils.iCottageSServerUtils.utils.TimeUtils
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
-import org.bukkit.Bukkit
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.scoreboard.Criteria
@@ -26,7 +28,8 @@ class ScoreboardManager(
     private val plugin: JavaPlugin,
     private val rankManager: RankManager,
     private val statsManager: PlayerStatsManager,
-    private val moderationManager: ModerationManager
+    private val moderationManager: ModerationManager,
+    private val afkManager: AfkManager
 ) {
     private val playerScoreboards = ConcurrentHashMap<UUID, Scoreboard>()
     private val kdrFormat = DecimalFormat("0.00")
@@ -42,7 +45,8 @@ class ScoreboardManager(
     private val showServerTPS = plugin.config.getBoolean("scoreboard.show-server-tps", true)
     private val showServerAddress = plugin.config.getBoolean("scoreboard.show-server-address", true)
     private val showMuteStatus = plugin.config.getBoolean("scoreboard.show-mute-status", true)
-    
+    private val showAfkStatus = plugin.config.getBoolean("scoreboard.show-afk-status", true)
+
     /**
      * Initialize the scoreboard manager
      */
@@ -51,10 +55,10 @@ class ScoreboardManager(
         plugin.server.scheduler.runTaskTimer(plugin, Runnable {
             updateAllScoreboards()
         }, updateInterval, updateInterval)
-        
+
         plugin.logger.info("Scoreboard manager initialized")
     }
-    
+
     /**
      * Set up a player's scoreboard
      */
@@ -65,21 +69,21 @@ class ScoreboardManager(
             Criteria.DUMMY,
             Component.text(serverName).color(NamedTextColor.GOLD).decorate(TextDecoration.BOLD)
         )
-        
+
         objective.displaySlot = DisplaySlot.SIDEBAR
         playerScoreboards[player.uniqueId] = scoreboard
         player.scoreboard = scoreboard
-        
+
         updateScoreboard(player)
     }
-    
+
     /**
      * Remove a player's scoreboard
      */
     fun removeScoreboard(player: Player) {
         playerScoreboards.remove(player.uniqueId)
     }
-    
+
     /**
      * Update all player scoreboards
      */
@@ -88,31 +92,31 @@ class ScoreboardManager(
             updateScoreboard(player)
         }
     }
-    
+
     /**
      * Update a player's scoreboard
      */
     private fun updateScoreboard(player: Player) {
         val scoreboard = playerScoreboards[player.uniqueId] ?: return
         val objective = scoreboard.getObjective("stats") ?: return
-        
+
         // Clear existing scores
         for (entry in scoreboard.entries) {
             scoreboard.resetScores(entry)
         }
-        
+
         // Get player stats
         val stats = statsManager.getPlayerStats(player)
-        
+
         // Add lines to scoreboard
         var score = 15
-        
+
         // Add empty line
         objective.getScore("§8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯").score = score--
-        
+
         // Add player name
         objective.getScore("§ePlayer: §f${player.name}").score = score--
-        
+
         // Add rank if enabled
         if (showRank) {
             val rank = rankManager.getPlayerRankByUUID(player.uniqueId)
@@ -121,41 +125,41 @@ class ScoreboardManager(
             val rankDisplay = LegacyComponentSerializer.legacySection().serialize(rankDisplayComponent)
             objective.getScore("§eRank: $rankDisplay").score = score--
         }
-        
+
         // Add empty line
         objective.getScore("§8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ ").score = score--
-        
+
         // Add stats if enabled
         if (showKills) {
             objective.getScore("§eKills: §f${stats.kills}").score = score--
         }
-        
+
         if (showDeaths) {
             objective.getScore("§eDeaths: §f${stats.deaths}").score = score--
         }
-        
+
         if (showKDR) {
             objective.getScore("§eKDR: §f${kdrFormat.format(stats.kdr)}").score = score--
         }
-        
+
         if (showPlaytime) {
             // Calculate current session time
             val currentSession = (System.currentTimeMillis() - stats.lastJoinTime) / 1000
             val totalPlaytime = stats.playTimeSeconds + currentSession
-            
+
             objective.getScore("§ePlaytime: §f${formatPlaytime(totalPlaytime)}").score = score--
         }
-        
+
         // Add empty line
         objective.getScore("§8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯  ").score = score--
-        
+
         // Add server info if enabled
         if (showOnlinePlayers) {
             val onlineCount = Bukkit.getOnlinePlayers().size
             val maxPlayers = Bukkit.getMaxPlayers()
             objective.getScore("§eOnline: §f$onlineCount/$maxPlayers").score = score--
         }
-        
+
         if (showServerTPS) {
             val tps = Bukkit.getTPS()[0]
             val tpsFormatted = String.format("%.1f", tps)
@@ -166,7 +170,12 @@ class ScoreboardManager(
             }
             objective.getScore("§eTPS: $tpsColor$tpsFormatted").score = score--
         }
-        
+
+        // Check if player is AFK and show AFK status if enabled
+        if (showAfkStatus && afkManager.isAfk(player.uniqueId)) {
+            objective.getScore("§c§lAFK: §fYes").score = score--
+        }
+
         // Check if player is muted and show mute status if enabled
         if (showMuteStatus && moderationManager.isMuted(player)) {
             val muteEntry = moderationManager.getMuteEntry(player)
@@ -176,9 +185,10 @@ class ScoreboardManager(
                 objective.getScore("§c§lMUTED: §f$formattedTime").score = score--
             }
         }
-        
+
         // Add empty line
         objective.getScore("§8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯   ").score = score--
+
         
         // Add server address if enabled
         if (showServerAddress) {

@@ -173,3 +173,29 @@ combat:
   
   # Whether to punish players for logging out during combat
   punish-logout: true
+
+# AFK system configuration
+afk-system:
+  enabled: true
+  timeout: 5 # minutes until a player is marked as AFK
+  kick-afk-players: false
+  kick-timeout: 30 # minutes until an AFK player is kicked
+
+# Teleport request (TPA) system configuration
+teleport-system:
+  enabled: true
+  request-expiration: 30 # seconds until a teleport request expires
+  cooldown: 30 # seconds between teleport requests
+
+# Private messaging system configuration
+messaging-system:
+  enabled: true
+  format:
+    outgoing: "&7To &6{receiver}&7: &f{message}" # Format for messages you send
+    incoming: "&7From &6{sender}&7: &f{message}" # Format for messages you receive
+
+# Report system configuration
+report-system:
+  enabled: true
+  cooldown: 15 # seconds between reports
+  notify-permission: "icottage.report.receive" # Permission to receive report notifications

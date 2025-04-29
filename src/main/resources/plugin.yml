@@ -33,13 +33,65 @@ commands:
     usage: /echest [player]
     permission: serverutils.admin.echest.use
   hat:
-    description: Wear the item in your hand as a hat
+    description: Put a block on your head
     usage: /hat
-    permission: serverutils.hat
+    permission: icottage.hat
   rgbhat:
-    description: Wear a color-cycling glass hat
+    description: Put a color-changing glass block on your head
     usage: /rgbhat
-    permission: serverutils.rgbhat
+    permission: icottage.rgbhat
+  
+  # Messaging commands
+  msg:
+    description: Send a private message to another player
+    usage: /msg <player> <message>
+    aliases: [m, tell, w, whisper]
+    permission: icottage.msg
+  r:
+    description: Reply to the last player who messaged you
+    usage: /r <message>
+    aliases: [reply]
+    permission: icottage.msg
+  ignore:
+    description: Ignore a player's messages
+    usage: /ignore <player>
+    permission: icottage.ignore
+  unignore:
+    description: Unignore a player's messages
+    usage: /unignore <player>
+    permission: icottage.ignore
+  
+  # Teleport commands
+  tpa:
+    description: Send a teleport request to another player
+    usage: /tpa <player>
+    permission: icottage.tpa
+  tpaccept:
+    description: Accept a teleport request
+    usage: /tpaccept <player>
+    aliases: [tpyes]
+    permission: icottage.tpa
+  tpdeny:
+    description: Deny a teleport request
+    usage: /tpdeny <player>
+    aliases: [tpno]
+    permission: icottage.tpa
+  tpcancel:
+    description: Cancel your pending teleport
+    usage: /tpcancel
+    permission: icottage.tpa
+  
+  # AFK command
+  afk:
+    description: Toggle your AFK status
+    usage: /afk
+    permission: icottage.afk
+  
+  # Report command
+  report:
+    description: Report a player for breaking the rules
+    usage: /report <player> <reason> <details>
+    permission: icottage.report
 
 permissions:
   serverutils.use:

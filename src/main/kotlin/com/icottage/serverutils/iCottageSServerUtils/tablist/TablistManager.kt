@@ -1,5 +1,6 @@
 package com.icottage.serverutils.iCottageSServerUtils.tablist
 
+import com.icottage.serverutils.iCottageSServerUtils.afk.AfkManager
 import com.icottage.serverutils.iCottageSServerUtils.moderation.ModerationManager
 import com.icottage.serverutils.iCottageSServerUtils.ranks.RankManager
 import com.icottage.serverutils.iCottageSServerUtils.stats.PlayerStatsManager
@@ -22,7 +23,8 @@ class TablistManager(
     private val plugin: JavaPlugin,
     private val rankManager: RankManager,
     private val statsManager: PlayerStatsManager,
-    private val moderationManager: ModerationManager
+    private val moderationManager: ModerationManager,
+    private val afkManager: AfkManager
 ) {
     private val kdrFormat = DecimalFormat("0.00")
     private val updateInterval = plugin.config.getLong("tablist.update-interval", 20L)
@@ -30,6 +32,7 @@ class TablistManager(
     private val footerEnabled = plugin.config.getBoolean("tablist.footer.enabled", true)
     private val showPlayerStats = plugin.config.getBoolean("tablist.show-player-stats", true)
     private val showMuteStatus = plugin.config.getBoolean("tablist.show-mute-status", true)
+    private val showAfkStatus = plugin.config.getBoolean("tablist.show-afk-status", true)
     private val serverName = plugin.config.getString("scoreboard.server-name", "Your Server") ?: "Your Server"
     private val serverAddress = plugin.config.getString("scoreboard.server-address", "play.yourserver.com") ?: "play.yourserver.com"
     
@@ -79,20 +82,12 @@ class TablistManager(
             .append(Component.text(" "))
             .append(Component.text(player.name))
         
-        // Check if player is muted and show mute status if enabled
-        if (showMuteStatus && moderationManager.isMuted(player)) {
-            val muteEntry = moderationManager.getMuteEntry(player)
-            if (muteEntry != null) {
-                val remainingTime = TimeUtils.getRemainingTime(muteEntry.expiration)
-                val formattedTime = if (remainingTime == Long.MAX_VALUE) "PERM" else TimeUtils.formatTime(remainingTime)
-                val shortReason = if (muteEntry.reason.length > 15) muteEntry.reason.substring(0, 12) + "..." else muteEntry.reason
-                
-                componentBuilder.append(Component.text(" "))
-                    .append(Component.text("[MUTED: $formattedTime]", NamedTextColor.RED, TextDecoration.BOLD))
-                    .append(Component.text(" "))
-                    .append(Component.text("($shortReason)", NamedTextColor.RED))
-            }
+        // Add AFK status if player is AFK
+        if (showAfkStatus && afkManager.isAfk(player.uniqueId)) {
+            componentBuilder.append(Component.text(" "))
+                .append(Component.text("[AFK]", NamedTextColor.GRAY, TextDecoration.ITALIC))
         }
+        
         
         // If player stats are enabled, show KDR in the tab list
         if (showPlayerStats) {
