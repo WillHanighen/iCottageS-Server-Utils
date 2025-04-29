@@ -123,7 +123,9 @@ class ScoreboardManager(
             // Convert the rank display name to a legacy string with proper color codes
             val rankDisplayComponent = rank.getDisplayNameComponent()
             val rankDisplay = LegacyComponentSerializer.legacySection().serialize(rankDisplayComponent)
-            objective.getScore("§eRank: $rankDisplay").score = score--
+            
+            // Make the rank more prominent with a special format
+            objective.getScore("§6§l⚜ §r$rankDisplay §6§l⚜").score = score--
         }
 
         // Add empty line

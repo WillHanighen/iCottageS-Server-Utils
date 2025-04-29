@@ -1,6 +1,7 @@
 package com.icottage.serverutils.iCottageSServerUtils.ranks
 
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import java.util.regex.Pattern
@@ -51,6 +52,29 @@ data class Rank(
      */
     fun getFormattedDisplayName(): String {
         return displayName
+    }
+    
+    /**
+     * Extracts the TextColor from the rank's prefix or display name
+     * @return The TextColor of the rank, or null if no color is found
+     */
+    fun getColor(): TextColor? {
+        // Try to extract color from the prefix component
+        val prefixComponent = getPrefixComponent()
+        val prefixStyle = prefixComponent.style()
+        if (prefixStyle.color() != null) {
+            return prefixStyle.color()
+        }
+        
+        // If no color in prefix, try from display name
+        val displayNameComponent = getDisplayNameComponent()
+        val displayNameStyle = displayNameComponent.style()
+        if (displayNameStyle.color() != null) {
+            return displayNameStyle.color()
+        }
+        
+        // Default to white if no color found
+        return NamedTextColor.WHITE
     }
     
 

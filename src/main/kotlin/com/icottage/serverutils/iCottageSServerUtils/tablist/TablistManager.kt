@@ -77,17 +77,25 @@ class TablistManager(
      */
     private fun updatePlayerListName(player: Player) {
         val rank = rankManager.getPlayerRankByUUID(player.uniqueId)
+        
+        // Create a more visually distinct rank display
+        val rankComponent = rank.getDisplayNameComponent()
+        
+        // Get player name with rank color for better visibility
+        val nameColor = rank.getColor() ?: NamedTextColor.WHITE
+        
         val componentBuilder = Component.text()
-            .append(rank.getDisplayNameComponent())
+            .append(Component.text("[", NamedTextColor.DARK_GRAY))
+            .append(rankComponent)
+            .append(Component.text("]", NamedTextColor.DARK_GRAY))
             .append(Component.text(" "))
-            .append(Component.text(player.name))
+            .append(Component.text(player.name, nameColor))
         
         // Add AFK status if player is AFK
         if (showAfkStatus && afkManager.isAfk(player.uniqueId)) {
             componentBuilder.append(Component.text(" "))
                 .append(Component.text("[AFK]", NamedTextColor.GRAY, TextDecoration.ITALIC))
         }
-        
         
         // If player stats are enabled, show KDR in the tab list
         if (showPlayerStats) {

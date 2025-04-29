@@ -25,18 +25,21 @@ class RankChatListener(private val rankManager: RankManager) : Listener {
         val rank = rankManager.getPlayerRank(player)
         
         // Create the rank prefix component
-        val prefixComponent = LegacyComponentSerializer.legacyAmpersand()
-            .deserialize(rank.getFormattedPrefix())
+        val prefixComponent = rank.getPrefixComponent()
         
         // Get the original message
         val originalMessage = event.message()
+        
+        // Get the player's name with the rank's color
+        val nameColor = rank.getColor() ?: NamedTextColor.WHITE
+        val playerName = Component.text(player.name, nameColor)
         
         // Format: [Rank] Username: Message
         val formattedMessage = Component.text()
             .append(prefixComponent)
             .append(Component.text(" "))
-            .append(Component.text(player.name))
-            .append(Component.text(": "))
+            .append(playerName)
+            .append(Component.text(": ", NamedTextColor.GRAY))
             .append(originalMessage)
             .build()
         
